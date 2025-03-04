@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>수도요금 계산기</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+        .container {
+            width: 90%;
+            max-width: 400px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 5px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+        }
+        /* 절수형 샤워헤드 버튼 스타일 */
+        .blink-button {
+            width: 100%;
+            padding: 12px;
+            background: black;
+            color: red;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            display: none; /* 처음에는 숨김 */
+            opacity: 1;
+            transition: opacity 0.5s;
+        }
+        .blink-button:hover {
+            background: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>수도요금 계산기(서울시 기준)</h2>
+        <label for="people">👨‍👩‍👦 인원수 (명)</label>
+        <input type="number" id="people" placeholder="예: 2" min="1" value="1">
+
+        <label for="usageTime">🚿 1명 하루 사용시간 (분)</label>
+        <input type="number" id="usageTime" placeholder="예: 30" min="1" value="30">
+
+        <button onclick="calculateWaterBill()">요금 계산하기</button>
+
+        <div class="result" id="result">💧 수도요금 결과가 여기에 표시됩니다.</div>
+
+        <!-- 절수형 샤워헤드 확인하기 버튼 (처음에는 숨김) -->
+        <button class="blink-button" onclick="openRandomLink()" id="blinkButton">💡 일제 절수형 샤워헤드 확인하기</button>
+    </div>
+
+    <script>
+        function calculateWaterBill() {
+            let people = parseInt(document.getElementById("people").value);
+            let usageTime = parseInt(document.getElementById("usageTime").value);
+            
+            if (isNaN(people) || people < 1 || isNaN(usageTime) || usageTime < 1) {
+                document.getElementById("result").innerHTML = "⚠️ 올바른 값을 입력하세요.";
+                return;
+            }
+
+            let waterUsagePerMin = 10; // 1분당 물 사용량 (리터)
+            let dailyUsage = people * usageTime * waterUsagePerMin / 1000; // ㎥ 단위 변환
+            let monthlyUsage = dailyUsage * 30; // 한달 사용량 (㎥)
+
+            let waterRate = 0;
+            if (monthlyUsage <= 30) {
+                waterRate = 580;
+            } else if (monthlyUsage <= 50) {
+                waterRate = 830;
+            } else {
+                waterRate = 1550;
+            }
+
+            let waterBill = monthlyUsage * waterRate;
+            let sewerageFee = monthlyUsage * 860; // 하수도 요금
+            let waterTax = monthlyUsage * 170; // 물 이용 부담금
+
+            let totalBill = waterBill + sewerageFee + waterTax;
+            let formattedBill = totalBill.toLocaleString("ko-KR"); // 천 단위 콤마
+
+            document.getElementById("result").innerHTML = 
+                `💰 예상 수도요금: <b>${formattedBill} 원</b><br>
+                 💧 예상 사용량: <b>${monthlyUsage.toFixed(1)}㎥</b>`;
+
+            // 버튼 표시
+            let button = document.getElementById("blinkButton");
+            button.style.display = "block";
+            button.style.opacity = "1";
+        }
+
+        // 절수형 샤워헤드 링크 목록
+        const showerHeadLinks = [
+            "https://smartstore.naver.com/allgagu/products/11548380455",
+            "https://smartstore.naver.com/real09/products/11548590286",
+            "https://www.coupang.com/vp/products/8628244373"
+        ];
+
+        function openRandomLink() {
+            let randomIndex = Math.floor(Math.random() * showerHeadLinks.length);
+            window.open(showerHeadLinks[randomIndex], "_blank");
+        }
+
+        // 버튼 깜빡이기 기능 (1초마다 깜빡이지만, 클릭 가능)
+        function blinkButton() {
+            let button = document.getElementById("blinkButton");
+            let isVisible = true;
+
+            setInterval(() => {
+                if (button.style.display === "block") { // 버튼이 보일 때만 깜빡이게
+                    button.style.opacity = isVisible ? "0.2" : "1"; // 투명도 조정 (클릭 가능)
+                    isVisible = !isVisible;
+                }
+            }, 1000); // 1초마다 깜빡이게 설정
+        }
+
+        // 깜빡이기 기능 실행
+        blinkButton();
+    </script>
+
+</body>
+</html>
